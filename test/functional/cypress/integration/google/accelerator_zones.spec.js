@@ -28,7 +28,7 @@ describe('google: Create Server Group Modal GPU Accelerators', () => {
       cy.get('div.form-group:contains("Zone") select').select('us-east1-c');
     });
 
-    cy.get('button:contains("Add Accelerator")').click();
+    cy.get('.btn-primary').first().click({ force: true });  
     typeSelect = ReactSelect('v2-wizard-page[key=advanced] gce-accelerator-configurer td:first-of-type');
     typeSelect.toggleDropdown();
     typeSelect.getOptions().then(options => {
