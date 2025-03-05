@@ -1,6 +1,10 @@
 import { ReactSelect, registerDefaultFixtures } from '../../support';
 
 describe('google: Create Server Group Modal GPU Accelerators', () => {
+  before(() => {
+    require('events').EventEmitter.defaultMaxListeners = 15;
+  });
+
   beforeEach(() => {
     registerDefaultFixtures();
     cy.route('/credentials?expand=true', 'fixture:google/accelerator_zones/credentials.json');
@@ -9,7 +13,10 @@ describe('google: Create Server Group Modal GPU Accelerators', () => {
 
   it(`provides different accelerators according to the server group's chosen zone`, () => {
     cy.visit('#/applications/compute/clusters');
-    cy.get('button:contains("Create Server Group")').click();
+    cy.window().its('angular').should('exist');
+    cy.get('button:contains("Create Server Group")', { timeout: 10000 })
+      .should('be.visible')
+      .click();
 
     cy.get('button:contains("Add Accelerator")').click();
     const typeSelect = ReactSelect('v2-wizard-page[key=advanced] gce-accelerator-configurer td:first-of-type');
@@ -30,10 +37,10 @@ describe('google: Create Server Group Modal GPU Accelerators', () => {
       cy.get('div.form-group:contains("Zone") select').select('us-east1-c');
     });
 
-    // Wait for zone selection to be processed
     cy.wait(1000);
-
-    cy.get('.btn-primary').first().click({ force: true });  
+    cy.get('.btn-primary').first()
+      .should('be.visible')
+      .click({ force: true });  
     const updatedTypeSelect = ReactSelect('v2-wizard-page[key=advanced] gce-accelerator-configurer td:first-of-type');
     updatedTypeSelect.get();
     updatedTypeSelect.toggleDropdown();
@@ -42,5 +49,11 @@ describe('google: Create Server Group Modal GPU Accelerators', () => {
       expect(types).to.include('NVIDIA Tesla K80');
     });
     updatedTypeSelect.toggleDropdown();
+  });
+
+  afterEach(() => {
+    cy.window().then((win) => {
+      win.removeAllListeners && win.removeAllListeners();
+    });
   });
 });

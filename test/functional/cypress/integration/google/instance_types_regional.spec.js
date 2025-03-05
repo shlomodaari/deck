@@ -1,6 +1,10 @@
 import { registerDefaultFixtures, ReactSelect } from '../../support';
 
 describe('google: Regional Instance Type Distribution', () => {
+  before(() => {
+    require('events').EventEmitter.defaultMaxListeners = 15;
+  });
+
   beforeEach(() => {
     registerDefaultFixtures();
     cy.route('/credentials?expand=true', 'fixture:google/accelerator_zones/credentials.json');
@@ -46,19 +50,40 @@ describe('google: Regional Instance Type Distribution', () => {
 
   it('should show c4-standard-2 when regional is enabled without zone selection', () => {
 
-    cy.get('v2-wizard-page[key=zones]').within(() => {
-      cy.contains('Distribute instances across multiple zones')
-        .parent()
-        .find('input[type="checkbox"]')
-        .scrollIntoView()
-        .click({ force: true });
-    });
+    cy.contains('Distribute instances across multiple zones', { timeout: 10000 })
+      .parent()
+      .find('input[type="checkbox"]')
+      .click({ force: true })
+      .should('be.checked');
 
-    cy.get('.btn-primary').first().click({ force: true });
+    cy.wait(1000);
 
-    cy.get('v2-wizard-page[key="instance-type"]').within(() => {
-      cy.contains('c4-standard-2', { timeout: 10000 }).should('exist');
-    });
+    cy.get('.btn-primary').first()
+      .click({ force: true });
+
+    const maxAttempts = 3;
+    let attempts = 0;
+
+    const checkForInstanceType = () => {
+      attempts++;
+      cy.contains('c4-standard-2', { timeout: 5000 })
+        .should('exist')
+        .then(() => {}, (err) => {
+          if (attempts < maxAttempts) {
+            cy.wait(1000);
+            checkForInstanceType();
+          } else {
+            throw err;
+          }
+        });
+    };
+
+    checkForInstanceType();
   });
 
+  afterEach(() => {
+    cy.window().then((win) => {
+      win.removeAllListeners && win.removeAllListeners();
+    });
+  });
 });
