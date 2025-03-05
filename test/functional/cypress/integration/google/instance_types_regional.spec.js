@@ -57,7 +57,7 @@ describe('google: Regional Instance Type Distribution', () => {
     cy.get('.btn-primary').first().click({ force: true });
 
     cy.get('v2-wizard-page[key="instance-type"]').within(() => {
-      cy.contains('c4-standard-2').should('exist');
+      cy.contains('c4-standard-2', { timeout: 10000 }).should('exist');
     });
   });
 

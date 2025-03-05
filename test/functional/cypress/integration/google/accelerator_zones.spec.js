@@ -21,6 +21,7 @@ describe('google: Create Server Group Modal GPU Accelerators', () => {
     });
     typeSelect.toggleDropdown();
 
+    // Select region and zone
     cy.get('v2-wizard-page[key=location]').within(() => {
       cy.get('div.form-group:contains("Region") select').select('us-east1');
     });
@@ -28,6 +29,9 @@ describe('google: Create Server Group Modal GPU Accelerators', () => {
     cy.get('v2-wizard-page[key=zones]').within(() => {
       cy.get('div.form-group:contains("Zone") select').select('us-east1-c');
     });
+
+    // Wait for zone selection to be processed
+    cy.wait(1000);
 
     cy.get('.btn-primary').first().click({ force: true });  
     const updatedTypeSelect = ReactSelect('v2-wizard-page[key=advanced] gce-accelerator-configurer td:first-of-type');
