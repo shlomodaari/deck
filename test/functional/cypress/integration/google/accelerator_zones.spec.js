@@ -12,7 +12,8 @@ describe('google: Create Server Group Modal GPU Accelerators', () => {
     cy.get('button:contains("Create Server Group")').click();
 
     cy.get('button:contains("Add Accelerator")').click();
-    let typeSelect = ReactSelect('v2-wizard-page[key=advanced] gce-accelerator-configurer td:first-of-type');
+    const typeSelect = ReactSelect('v2-wizard-page[key=advanced] gce-accelerator-configurer td:first-of-type');
+    typeSelect.get();
     typeSelect.toggleDropdown();
     typeSelect.getOptions().then(options => {
       const types = Array.from(options).map(o => o.innerHTML);
@@ -29,12 +30,13 @@ describe('google: Create Server Group Modal GPU Accelerators', () => {
     });
 
     cy.get('.btn-primary').first().click({ force: true });  
-    typeSelect = ReactSelect('v2-wizard-page[key=advanced] gce-accelerator-configurer td:first-of-type');
-    typeSelect.toggleDropdown();
-    typeSelect.getOptions().then(options => {
+    const updatedTypeSelect = ReactSelect('v2-wizard-page[key=advanced] gce-accelerator-configurer td:first-of-type');
+    updatedTypeSelect.get();
+    updatedTypeSelect.toggleDropdown();
+    updatedTypeSelect.getOptions().then(options => {
       const types = Array.from(options).map(o => o.innerHTML);
       expect(types).to.include('NVIDIA Tesla K80');
     });
-    typeSelect.toggleDropdown();
+    updatedTypeSelect.toggleDropdown();
   });
 });
